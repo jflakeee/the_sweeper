@@ -2,7 +2,7 @@
 
 모바일 웹 청소·회수 게임 프로젝트입니다. Android는 이후 대상입니다.
 
-현재 상태: 설계 v1.0. 플레이 가능한 게임은 아직 구현되지 않았습니다.
+현재 상태: 설계 v1.1. 플레이 가능한 게임은 아직 구현되지 않았습니다.
 
 - [설계서](docs/moon_sweepers_benchmark_design.md)
 - [ForgeTax 분석](docs/forgetax_deep_research.md)
