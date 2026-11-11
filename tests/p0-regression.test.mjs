@@ -27,8 +27,8 @@ test('P0-A: finish threshold 0..5 and one-time reward', () => {
   for (let dust = 0; dust <= 5; dust++) {
     const s = endState(dust);
     assert.ok(valid(s));
-    assert.equal(finish(s), dust <= 4, 'remaining=' + dust);
-    if (dust <= 4) {
+    assert.equal(finish(s), dust >= 1 && dust <= 4, 'remaining=' + dust);
+    if (dust >= 1 && dust <= 4) {
       assert.equal(s.complete, true);
       assert.equal(s.sold, 900);
       assert.equal(s.wallet, 1000);
