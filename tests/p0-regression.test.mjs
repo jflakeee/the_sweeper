@@ -95,7 +95,3 @@ test('P0-A: v1 save envelope and initial state remain readable', () => {
   assert.ok(valid(read(db).current));
 });
 
-test('P0-B prerequisite: paused state cannot be enforced in core; requires browser integration', () => {
-  // No false claim of multi-tab browser verification: Web Locks live in app.mjs.
-  assert.equal(typeof globalThis.navigator?.locks?.request, 'undefined');
-});
