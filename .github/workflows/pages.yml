@@ -18,11 +18,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test game rules
+        run: node --test tests/*.test.mjs
       - name: Prepare public files
         run: |
           mkdir -p _site/docs
           cp index.html .nojekyll _site/
-          cp docs/*.md _site/docs/
+          cp docs/moon_sweepers_benchmark_design.md docs/forgetax_deep_research.md docs/implementation_status.md _site/docs/
+          cp -r game _site/game
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
