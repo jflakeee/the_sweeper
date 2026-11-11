@@ -1,0 +1,22 @@
+name: P0 regression
+on:
+  push:
+    branches:
+      - docs/map-systems-20261111
+  pull_request:
+    paths:
+      - 'game/**'
+      - 'tests/**'
+      - '.github/workflows/p0-regression.yml'
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run all regression tests
+        run: node --test tests/*.test.mjs
