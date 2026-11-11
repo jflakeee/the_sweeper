@@ -82,6 +82,8 @@ elsewhere in the repo, so they are restated here rather than lost:
 
 ## the_sweeper project context
 
+Read `MEMORY.md` for the durable project checkpoint, then verify the latest repository state.
+
 - Existing game: `game/`; tests: `tests/`; source design: `docs/moon_sweepers_benchmark_design.md`. Preserve these; do not scaffold a replacement.
 - Mobile web first; Android packaging remains pending.
 - User explicitly authorized implementation, verification, commits and deployment after each completed task. Routine authorized edits do not require repeated permission.

@@ -28,6 +28,8 @@ jobs:
           mkdir -p _site/docs
           cp index.html .nojekyll _site/
           cp docs/moon_sweepers_benchmark_design.md docs/forgetax_deep_research.md docs/implementation_status.md _site/docs/
+          cp production/project-stage-report.md _site/docs/project-stage-report.md
+          cp MEMORY.md _site/docs/MEMORY.md
           cp -r game _site/game
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
