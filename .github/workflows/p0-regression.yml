@@ -20,3 +20,9 @@ jobs:
           node-version: '22'
       - name: Run all regression tests
         run: node --test tests/*.test.mjs
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run Chromium P0 browser checks
+        run: node tests/p0-browser.mjs
