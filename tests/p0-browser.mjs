@@ -79,5 +79,33 @@ try {
   assert.equal(pending.wallet,1000);assert.equal(pending.complete,true);
   console.log('PASS B02: failed completion persisted only on retry');passed++;
   await d.close();
+
+  // P0-C: mobile viewport, joystick cancellation, orientation and interruption.
+  const mobile = await browser.newContext({viewport:{width:360,height:740},hasTouch:true,isMobile:true,deviceScaleFactor:2});
+  try {
+    const m = await mobile.newPage();
+    await m.goto(origin+'/game/');
+    await m.getByRole('button',{name:'첫 청소 시작'}).click();
+    const joystick=m.locator('#stick');
+    const rect=await joystick.boundingBox();
+    assert.ok(rect && rect.width>0 && rect.height>0);
+    await joystick.dispatchEvent('pointerdown',{pointerId:42,clientX:rect.x+rect.width/2+25,clientY:rect.y+rect.height/2,pointerType:'touch'});
+    assert.notEqual(await joystick.locator('span').evaluate(el=>el.style.transform),'');
+    await joystick.dispatchEvent('pointercancel',{pointerId:42,pointerType:'touch'});
+    assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),'');
+    console.log('PASS C01: mobile joystick pointercancel resets input');passed++;
+    await m.setViewportSize({width:740,height:360});
+    assert.equal(await m.locator('canvas').isVisible(),true);
+    assert.ok((await m.locator('canvas').boundingBox()).width>0);
+    console.log('PASS C02: landscape viewport retains canvas');passed++;
+    await m.keyboard.down('ArrowRight');
+    await m.evaluate(()=>window.dispatchEvent(new Event('blur')));
+    await m.getByText('잠시 쉬어가기').waitFor();
+    assert.equal(await m.locator('dialog').isVisible(),true);
+    assert.equal(await m.locator('#sell').isDisabled(),true);
+    await m.getByRole('button',{name:'계속하기'}).click();
+    console.log('PASS C03: blur suspends and resume restores gameplay');passed++;
+    await m.close();
+  } finally {await mobile.close();}
   console.log('Browser checks passed:',passed);
 } finally { await context.close(); await browser.close();server.kill(); }
