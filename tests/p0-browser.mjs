@@ -1,6 +1,8 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
+await mkdir('artifacts',{recursive:true});
 
 const server = spawn('python3', ['-m', 'http.server', '8765', '--bind', '127.0.0.1'], {stdio:'ignore'});
 const origin = 'http://127.0.0.1:8765';
@@ -121,6 +123,7 @@ try {
         assert.ok(b.right<=layout.stick.left || b.left>=layout.stick.right || b.bottom<=layout.stick.top || b.top>=layout.stick.bottom,'joystick overlap');
       }
       assert.ok(layout.stick.left>=layout.field.left && layout.stick.right<=layout.field.right && layout.stick.bottom<=layout.field.bottom && layout.stick.top>=layout.field.top,'joystick outside field');
+      await m.screenshot({path:'artifacts/mobile-'+width+'x'+height+'.png',fullPage:true});
       console.log('PASS P1-A layout '+width+'x'+height);passed++;
     }
     await m.close();
