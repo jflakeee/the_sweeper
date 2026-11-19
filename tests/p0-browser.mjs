@@ -126,6 +126,16 @@ try {
       await m.screenshot({path:'artifacts/mobile-'+width+'x'+height+'.png',fullPage:true});
       console.log('PASS P1-A layout '+width+'x'+height);passed++;
     }
+    await m.setViewportSize({width:390,height:844});
+    const timing=await m.evaluate(async()=>{
+      const samples=[];
+      let last=await new Promise(r=>requestAnimationFrame(r));
+      for(let i=0;i<120;i++){const now=await new Promise(r=>requestAnimationFrame(r));samples.push(now-last);last=now;}
+      const sorted=[...samples].sort((a,b)=>a-b);
+      return {frames:samples.length,meanMs:samples.reduce((a,b)=>a+b,0)/samples.length,p95Ms:sorted[Math.ceil(sorted.length*.95)-1],maxMs:sorted.at(-1)};
+    });
+    assert.equal(timing.frames,120);
+    console.log('PERF mobile idle rAF:',JSON.stringify({...timing,fps:1000/timing.meanMs}));
     await m.close();
   } finally {await mobile.close();}
   console.log('Browser checks passed:',passed);
