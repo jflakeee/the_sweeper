@@ -97,6 +97,21 @@ try {
     await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
     assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),'');
     console.log('PASS C01: mobile joystick pointercancel resets input');passed++;
+    // A second pointer must not steal or cancel the original joystick.
+    const point={x:rect.x+rect.width/2+25,y:rect.y+rect.height/2,id:1};
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});
+    const transform=await joystick.locator('span').evaluate(el=>el.style.transform);
+    assert.notEqual(transform,'');
+    await joystick.dispatchEvent('pointerdown',{pointerId:999,button:0,pointerType:'touch',clientX:rect.x+5,clientY:rect.y+5});
+    await joystick.dispatchEvent('pointerup',{pointerId:999,pointerType:'touch'});
+    assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),transform);
+    await m.evaluate(()=>window.dispatchEvent(new Event('blur')));
+    await m.getByText('잠시 쉬어가기').waitFor();
+    assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),'');
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await m.getByRole('button',{name:'계속하기'}).click();
+    assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),'');
+    console.log('PASS P1-C: unrelated pointer ignored and interruption clears active input');passed++;
     await m.setViewportSize({width:740,height:360});
     assert.equal(await m.locator('canvas').isVisible(),true);
     assert.ok((await m.locator('canvas').boundingBox()).width>0);
