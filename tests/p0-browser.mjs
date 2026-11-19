@@ -107,6 +107,22 @@ try {
     await m.keyboard.up('ArrowRight');
     await m.getByRole('button',{name:'계속하기'}).click();
     console.log('PASS C03: blur suspends and resume restores gameplay');passed++;
+    for (const [width,height] of [[320,568],[360,740],[390,844],[430,932],[844,390],[568,320]]) {
+      await m.setViewportSize({width,height});
+      await m.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+      const layout=await m.evaluate(()=>{
+        const rect=el=>{const {left,right,top,bottom,width,height}=el.getBoundingClientRect();return {left,right,top,bottom,width,height};};
+        return {scroll:document.documentElement.scrollWidth,viewport:innerWidth,buttons:[...document.querySelectorAll('nav button')].map(rect),field:rect(document.querySelector('.field')),stick:rect(document.querySelector('#stick'))};
+      });
+      assert.ok(layout.scroll<=layout.viewport+1, 'horizontal overflow '+width+'x'+height);
+      for(const b of layout.buttons){
+        assert.ok(b.height>=48 && b.width>=48,'small touch target');
+        assert.ok(b.left>=0 && b.right<=layout.viewport+1,'button clipped');
+        assert.ok(b.right<=layout.stick.left || b.left>=layout.stick.right || b.bottom<=layout.stick.top || b.top>=layout.stick.bottom,'joystick overlap');
+      }
+      assert.ok(layout.stick.left>=layout.field.left && layout.stick.right<=layout.field.right && layout.stick.bottom<=layout.field.bottom && layout.stick.top>=layout.field.top,'joystick outside field');
+      console.log('PASS P1-A layout '+width+'x'+height);passed++;
+    }
     await m.close();
   } finally {await mobile.close();}
   console.log('Browser checks passed:',passed);
