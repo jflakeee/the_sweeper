@@ -89,9 +89,10 @@ try {
     const joystick=m.locator('#stick');
     const rect=await joystick.boundingBox();
     assert.ok(rect && rect.width>0 && rect.height>0);
-    await joystick.dispatchEvent('pointerdown',{pointerId:42,clientX:rect.x+rect.width/2+25,clientY:rect.y+rect.height/2,pointerType:'touch'});
+    const cdp=await mobile.newCDPSession(m);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:rect.x+rect.width/2+25,y:rect.y+rect.height/2}]});
     assert.notEqual(await joystick.locator('span').evaluate(el=>el.style.transform),'');
-    await joystick.dispatchEvent('pointercancel',{pointerId:42,pointerType:'touch'});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
     assert.equal(await joystick.locator('span').evaluate(el=>el.style.transform),'');
     console.log('PASS C01: mobile joystick pointercancel resets input');passed++;
     await m.setViewportSize({width:740,height:360});
@@ -103,6 +104,7 @@ try {
     await m.getByText('잠시 쉬어가기').waitFor();
     assert.equal(await m.locator('dialog').isVisible(),true);
     assert.equal(await m.locator('#sell').isDisabled(),true);
+    await m.keyboard.up('ArrowRight');
     await m.getByRole('button',{name:'계속하기'}).click();
     console.log('PASS C03: blur suspends and resume restores gameplay');passed++;
     await m.close();
