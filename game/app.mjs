@@ -16,7 +16,7 @@ function modal(title,message,actions){paused=true;resetInput();$('title').textCo
 function resume(){dialog.close();paused=false;last=performance.now();}
 function download(raw){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));a.download='the-sweeper-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function save(candidate=s,after=()=>{}){pending=structuredClone(candidate);try{({current:s,saved}=commitSession(storage,pending,saved));pending=null;$('save').textContent='저장됨 · #'+s.seq;after();return true;}catch(e){modal('저장을 완료하지 못했어요','진행을 멈췄습니다. 저장 공간을 확보한 뒤 같은 결과로 다시 시도할 수 있습니다.',[['저장 다시 시도',()=>{if(save(pending,after)&&!s.complete)pause();}],['현재 진행 내보내기',()=>download(JSON.stringify(pending))]]);return false;}}
-function receipt(){const sector=sectors[s.sector],actions=s.sector===1?[['화물 통로 진입',nextSector]]:[];actions.push(['정리된 구역 보기',resume],['저장 내보내기',()=>download(JSON.stringify(s))]);modal(sector.name+' 정리 완료','먼지 판매 누적 '+sector.total+' 크레딧\\n이번 완주 보너스 +'+sector.reward+' 크레딧\\n현재 잔액 '+s.wallet+' 크레딧',actions);}
+function receipt(){const sector=sectors[s.sector],actions=s.sector===1?[['화물 통로 진입',nextSector]]:[];actions.push(['정리된 구역 보기',resume],['저장 내보내기',()=>download(JSON.stringify(s))]);modal(sector.name+' 정리 완료','먼지 판매 누적 '+sector.total+' 크레딧\n이번 완주 보너스 +'+sector.reward+' 크레딧\n현재 잔액 '+s.wallet+' 크레딧',actions);}
 function transact(fn,kind='upgrade'){if(paused||!locked)return;const next=structuredClone(s);if(fn(next)){auto=false;save(next,()=>{feedback.emit(kind,canvas.clientWidth/2,canvas.clientHeight/2);if(s.complete)receipt();});}}
 function nextSector(){if(!locked||pending)return;const next=enterNextSector(s);if(!next)return;if(save(next)){resume();}}
 
