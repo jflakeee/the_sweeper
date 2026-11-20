@@ -43,12 +43,23 @@ try {
   await c.getByRole('button',{name:'이어서 청소'}).click();
   await c.getByRole('button',{name:'마지막 정리'}).click();
   await c.getByText('착륙장 정리 완료').waitFor();
-  let saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
-  assert.equal(saved.wallet,1000);assert.equal(saved.sold,900);assert.equal(saved.complete,true);
+  let saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(saved.wallet,1000);assert.equal(saved.sold,900);assert.equal(saved.complete,true);assert.equal(saved.version,2);assert.equal(saved.sector,1);
   await c.reload();
   await c.getByRole('button',{name:'이어서 청소'}).click();
-  saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
+  saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(saved.wallet,1000);assert.equal(saved.complete,true);
+  await c.getByRole('button',{name:'화물 통로 진입'}).click();
+  let second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(second.sector,2);assert.equal(second.tiles.length,105);assert.equal(second.wallet,1000);
+  assert.equal(await c.locator('#sector-name').textContent(),'화물 통로');
+  await c.getByRole('button',{name:'넓은 빗자루 장착'}).click();
+  second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(second.tool,'wide');
+  await c.reload();await c.getByRole('button',{name:'이어서 청소'}).click();
+  second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(second.sector,2);assert.equal(second.tool,'wide');
+  console.log('PASS P2: v1 completion migrates, enters second sector and persists equipment');passed++;
   console.log('PASS B03: completion once, reload retains reward');passed++;
   await c.close();
 
@@ -72,7 +83,7 @@ try {
     const native=Storage.prototype.setItem;
     let injected=false;
     Storage.prototype.setItem=function(key,value){
-      if(key==='the-sweeper-a-v1' && !injected && window.__injectFailure){injected=true;throw new DOMException('quota','QuotaExceededError');}
+      if(key==='the-sweeper-campaign-v2' && !injected && window.__injectFailure){injected=true;throw new DOMException('quota','QuotaExceededError');}
       return native.call(this,key,value);
     };
   });
@@ -81,11 +92,11 @@ try {
   await d.evaluate(()=>{window.__injectFailure=true;});
   await d.getByRole('button',{name:'마지막 정리'}).click();
   await d.getByText('저장을 완료하지 못했어요').waitFor();
-  let pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
+  let pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(pending.wallet,896);assert.equal(pending.complete,false);
   assert.equal(await d.evaluate(()=>window.__playedNotes),0,'no completion sound on failed save');
   await d.getByRole('button',{name:'저장 다시 시도'}).click();
-  pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
+  pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(pending.wallet,1000);assert.equal(pending.complete,true);
   assert.equal(await d.evaluate(()=>window.__playedNotes),3,'completion sound exactly once after committed retry');
   console.log('PASS P1-E: completion audio fires only after successful saved transaction');passed++;
