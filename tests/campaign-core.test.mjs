@@ -29,3 +29,11 @@ test('finish for six remaining is denied; selling preserves balance',()=>{
  const s=second();for(const t of s.tiles)t.n=0;s.tiles[0].n=6;s.sold=1034;s.bag=10;s.wallet=2034;
  assert.equal(campaignFinish(s),false);assert.ok(campaignSell(s));assert.equal(s.wallet,2044);assert.ok(validCampaign(s));assert.equal(s.complete,false);
 });
+
+test('final settlement never overflows a full bag',()=>{
+ const s=second();for(const t of s.tiles)t.n=0;s.tiles[0].n=5;
+ s.bag=90;s.sold=955;s.wallet=1955;
+ assert.ok(validCampaign(s));assert.equal(campaignFinish(s),true);
+ assert.equal(s.bag,0);assert.equal(s.sold,1050);assert.equal(s.wallet,2170);
+ assert.equal(s.complete,true);assert.ok(validCampaign(s));
+});
