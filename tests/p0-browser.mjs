@@ -62,6 +62,13 @@ try {
     tiles[0].n=4;
     const state={version:1,seq:2,tiles,bag:0,sold:896,wallet:896,level:0,complete:false,player:{x:12.5,y:26.5},facing:{x:0,y:-1}};
     localStorage.setItem('the-sweeper-a-v1',JSON.stringify({current:state,previous:null}));
+    // Stub audio before boot so the real completion flow can be checked.
+    window.__playedNotes=0;
+    window.AudioContext=class {
+      state='running';currentTime=0;destination={};
+      createOscillator(){return {type:'sine',frequency:{setValueAtTime(){}},connect(){return this;},start(){window.__playedNotes++;},stop(){}};}
+      createGain(){return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){return this;}};}
+    };
     const native=Storage.prototype.setItem;
     let injected=false;
     Storage.prototype.setItem=function(key,value){
@@ -76,9 +83,12 @@ try {
   await d.getByText('저장을 완료하지 못했어요').waitFor();
   let pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
   assert.equal(pending.wallet,896);assert.equal(pending.complete,false);
+  assert.equal(await d.evaluate(()=>window.__playedNotes),0,'no completion sound on failed save');
   await d.getByRole('button',{name:'저장 다시 시도'}).click();
   pending=await d.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-a-v1')).current);
   assert.equal(pending.wallet,1000);assert.equal(pending.complete,true);
+  assert.equal(await d.evaluate(()=>window.__playedNotes),3,'completion sound exactly once after committed retry');
+  console.log('PASS P1-E: completion audio fires only after successful saved transaction');passed++;
   console.log('PASS B02: failed completion persisted only on retry');passed++;
   await d.close();
 
