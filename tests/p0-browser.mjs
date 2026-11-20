@@ -50,7 +50,7 @@ try {
   await c.getByRole('button',{name:'이어서 청소'}).click();
   saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(saved.wallet,1000);assert.equal(saved.complete,true);
-  await c.getByRole('button',{name:'화물 통로 진입'}).click();
+  await c.locator('#next-sector').click();
   let second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(second.sector,2);assert.equal(second.tiles.length,105);assert.equal(second.wallet,1000);
   assert.equal(await c.locator('#sector-name').textContent(),'화물 통로');
