@@ -120,7 +120,7 @@ try {
       const ctx=canvas.getContext('2d');feedback.emit('collect',32,32,4);feedback.draw(ctx);
       const rgba=ctx.getImageData(30,30,4,4).data;
       return {particles:feedback.count,visible:[...rgba].some((n,i)=>i%4===3&&n>0),
-        controls:[...document.querySelectorAll('nav button')].every(el=>el.getBoundingClientRect().height>=48),
+        controls:[...document.querySelectorAll('nav button:not([hidden])')].every(el=>el.getBoundingClientRect().height>=48),
         overlays:document.querySelectorAll('.feedback-overlay').length};
     });
     assert.equal(fx.particles,4);assert.equal(fx.visible,true);
@@ -167,7 +167,7 @@ try {
       await m.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
       const layout=await m.evaluate(()=>{
         const rect=el=>{const {left,right,top,bottom,width,height}=el.getBoundingClientRect();return {left,right,top,bottom,width,height};};
-        return {scroll:document.documentElement.scrollWidth,viewport:innerWidth,buttons:[...document.querySelectorAll('nav button')].map(rect),field:rect(document.querySelector('.field')),stick:rect(document.querySelector('#stick'))};
+        return {scroll:document.documentElement.scrollWidth,viewport:innerWidth,buttons:[...document.querySelectorAll('nav button:not([hidden])')].map(rect),field:rect(document.querySelector('.field')),stick:rect(document.querySelector('#stick'))};
       });
       assert.ok(layout.scroll<=layout.viewport+1, 'horizontal overflow '+width+'x'+height);
       for(const b of layout.buttons){
