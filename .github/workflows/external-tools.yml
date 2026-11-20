@@ -1,0 +1,46 @@
+name: External game tools checkout
+on:
+  push:
+    branches: [docs/map-systems-20261111]
+    paths:
+      - .gitmodules
+      - external/**
+      - .claude/skills/external-*
+      - .github/workflows/external-tools.yml
+  pull_request:
+    paths:
+      - .gitmodules
+      - external/**
+      - .claude/skills/external-*
+      - .github/workflows/external-tools.yml
+permissions:
+  contents: read
+jobs:
+  verify-external-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Check six pinned source checkouts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule status --recursive
+          test "$(git submodule status | wc -l)" -eq 6
+          test -f external/awesome-gamedev-agent-skills/router/SKILL.md
+          test -f external/Claude-Code-Game-Studios/CLAUDE.md
+          test -f external/claude-gamedev-kit/.claude-plugin/plugin.json
+          test -f external/dream-loop/SKILL.md
+          test -f external/plinkfx/skills/plinkfx/SKILL.md
+          test -f external/pixelfx/skills/pixelfx/SKILL.md
+      - name: Verify project skill links
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in external-gamedev-router external-dream-loop external-plinkfx external-pixelfx; do
+            test -L ".claude/skills/$name"
+            test -f ".claude/skills/$name/SKILL.md"
+          done
+          echo "Six pinned repositories and four project-local skill links verified."
