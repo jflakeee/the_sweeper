@@ -60,6 +60,23 @@ try {
   await c.reload();await c.getByRole('button',{name:'이어서 청소'}).click();
   second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(second.sector,2);assert.equal(second.tool,'wide');
+  await c.setViewportSize({width:360,height:740});
+  await c.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+  const sector2Layout=await c.evaluate(()=>{
+    const buttons=[...document.querySelectorAll('nav button:not([hidden])')];
+    const stick=document.querySelector('#stick').getBoundingClientRect();
+    return {scroll:document.documentElement.scrollWidth,viewport:innerWidth,
+      buttons:buttons.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+        overlapsStick:!(r.right<=stick.left||r.left>=stick.right||r.bottom<=stick.top||r.top>=stick.bottom)};})};
+  });
+  assert.ok(sector2Layout.scroll<=sector2Layout.viewport+1,'sector 2 horizontal overflow');
+  assert.ok(sector2Layout.buttons.length>=7,'sector 2 actions available');
+  for(const button of sector2Layout.buttons){
+    assert.ok(button.width>=48&&button.height>=48,'sector 2 touch target');
+    assert.ok(button.left>=0&&button.right<=sector2Layout.viewport+1,'sector 2 clipped action');
+    assert.equal(button.overlapsStick,false,'sector 2 joystick overlap');
+  }
+  console.log('PASS P2 mobile: seven sector actions have safe 360px touch targets');passed++;
   console.log('PASS P2: v1 completion migrates, enters second sector and persists equipment');passed++;
   console.log('PASS B03: completion once, reload retains reward');passed++;
   await c.close();
