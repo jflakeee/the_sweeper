@@ -20,7 +20,11 @@ export function campaignSell(s){
 }
 export function campaignFinish(s){
  if(!near(s)||s.complete||remaining(s)>sectorThresholds(s.sector).finish)return false;
- for(const t of s.tiles){s.bag+=t.n;t.n=0;t.p=0;}return campaignSell(s);
+ const collected=s.bag+remaining(s);if(!collected)return false;
+ for(const t of s.tiles){t.n=0;t.p=0;}
+ s.bag=0;s.sold+=collected;s.wallet+=collected;
+ if(s.sold===sectors[s.sector].total){s.complete=true;s.completed.push(s.sector);s.wallet+=sectors[s.sector].reward;}
+ return true;
 }
 export function campaignUpgrade(s,kind){
  const costs={rate:50,capacity:150,speed:150},fields={rate:'level',capacity:'capacityLevel',speed:'speedLevel'};
