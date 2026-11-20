@@ -43,7 +43,7 @@ try {
   await c.goto(origin+'/game/');
   await c.getByRole('button',{name:'이어서 청소'}).click();
   await c.getByRole('button',{name:'마지막 정리'}).click();
-  await c.getByText('착륙장 정리 완료').waitFor();
+  await c.locator('dialog #title').getByText('착륙장 정리 완료').waitFor();
   let saved=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(saved.wallet,1000);assert.equal(saved.sold,900);assert.equal(saved.complete,true);assert.equal(saved.version,2);assert.equal(saved.sector,1);
   await c.reload();
