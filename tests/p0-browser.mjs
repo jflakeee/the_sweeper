@@ -60,6 +60,17 @@ try {
   await c.reload();await c.getByRole('button',{name:'이어서 청소'}).click();
   second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(second.sector,2);assert.equal(second.tool,'wide');
+  await c.getByRole('button',{name:/적재량 135/}).click();
+  await c.getByRole('button',{name:/이동 속도 \+10%/}).click();
+  let upgraded=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(upgraded.capacityLevel,1);assert.equal(upgraded.speedLevel,1);
+  assert.equal(upgraded.wallet,700,'both upgrades charged exactly once');
+  await c.reload();await c.getByRole('button',{name:'이어서 청소'}).click();
+  upgraded=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
+  assert.equal(upgraded.capacityLevel,1);assert.equal(upgraded.speedLevel,1);
+  assert.equal(upgraded.wallet,700);
+  assert.match(await c.locator('#bag').textContent(),/135/);
+  console.log('PASS P2 upgrades: capacity and speed charged once and survive reload');passed++;
   await c.setViewportSize({width:360,height:740});
   await c.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const sector2Layout=await c.evaluate(()=>{
