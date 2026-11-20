@@ -53,7 +53,7 @@ try {
   await c.locator('#next-sector').click();
   let second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(second.sector,2);assert.equal(second.tiles.length,105);assert.equal(second.wallet,1000);
-  assert.equal(await c.locator('#sector-name').textContent(),'화물 통로');
+  await c.getByRole('heading',{name:'화물 통로'}).waitFor();
   await c.getByRole('button',{name:'넓은 빗자루 장착'}).click();
   second=await c.evaluate(()=>JSON.parse(localStorage.getItem('the-sweeper-campaign-v2')).current);
   assert.equal(second.tool,'wide');
