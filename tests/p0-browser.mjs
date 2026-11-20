@@ -88,6 +88,21 @@ try {
     const m = await mobile.newPage();
     await m.goto(origin+'/game/');
     await m.getByRole('button',{name:'첫 청소 시작'}).click();
+    // P1-D: exercise actual Canvas2D particle drawing in mobile Chromium,
+    // and ensure feedback does not add DOM overlays above controls.
+    const fx=await m.evaluate(async()=>{
+      const {makeFeedback}=await import('./feedback.mjs');
+      const feedback=makeFeedback({audioContextFactory:()=>{throw Error('audio blocked')},random:()=>.5});
+      const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;
+      const ctx=canvas.getContext('2d');feedback.emit('collect',32,32,4);feedback.draw(ctx);
+      const rgba=ctx.getImageData(30,30,4,4).data;
+      return {particles:feedback.count,visible:[...rgba].some((n,i)=>i%4===3&&n>0),
+        controls:[...document.querySelectorAll('nav button')].every(el=>el.getBoundingClientRect().height>=48),
+        overlays:document.querySelectorAll('.feedback-overlay').length};
+    });
+    assert.equal(fx.particles,4);assert.equal(fx.visible,true);
+    assert.equal(fx.controls,true);assert.equal(fx.overlays,0);
+    console.log('PASS P1-D: Canvas2D particles visible, audio fallback safe, controls unobstructed');passed++;
     const joystick=m.locator('#stick');
     const rect=await joystick.boundingBox();
     assert.ok(rect && rect.width>0 && rect.height>0);
