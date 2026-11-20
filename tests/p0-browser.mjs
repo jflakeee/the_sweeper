@@ -33,6 +33,7 @@ try {
   await c.addInitScript(() => {
     if (sessionStorage.getItem('p0-fixture')) return;
     sessionStorage.setItem('p0-fixture','1');
+    localStorage.removeItem('the-sweeper-campaign-v2');
     const tiles=[];
     for(const [x,y] of [[6,8],[14,8],[9,17]])for(let j=y;j<y+5;j++)for(let i=x;i<x+6;i++)tiles.push({x:i+.5,y:j+.5,n:0,p:0});
     tiles[0].n=4;
@@ -68,6 +69,7 @@ try {
   await d.addInitScript(() => {
     if (sessionStorage.getItem('p0-fixture')) return;
     sessionStorage.setItem('p0-fixture','1');
+    localStorage.removeItem('the-sweeper-campaign-v2');
     const tiles=[];
     for(const [x,y] of [[6,8],[14,8],[9,17]])for(let j=y;j<y+5;j++)for(let i=x;i<x+6;i++)tiles.push({x:i+.5,y:j+.5,n:0,p:0});
     tiles[0].n=4;
